@@ -12,9 +12,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // 嵌套的周实验是独立工程，不归本应用 lint
-    "week-01/**",
-    "week-02/**",
   ]),
 ]);
 
