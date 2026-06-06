@@ -1,0 +1,43 @@
+# === 密钥 / 环境变量（红线：绝不进 git）===
+.env
+.env.*
+!.env.example
+
+# === 依赖 ===
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# === Next.js 构建产物 ===
+/.next/
+/out/
+/build
+next-env.d.ts
+
+# === 测试 / 覆盖率 ===
+/coverage
+
+# === 调试日志 ===
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# === 部署 / 工具 ===
+/.vercel
+.turbo
+
+# === 系统 / 编辑器 ===
+.DS_Store
+*.pem
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# === TypeScript ===
+*.tsbuildinfo

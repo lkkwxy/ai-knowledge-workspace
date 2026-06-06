@@ -1,0 +1,185 @@
+{
+  "_说明": "四件套之一(roadmap 第十节)。改完 prompt / 换模型后,把 cases 全部重跑一遍看回归。001~005=W1 chat 功能(手动发到 chat 人眼对照);006~015=W2 extract 结构化提取(POST /api/extract 实跑,actual 为返回对象摘要)。npm run eval 统一脚本待 W5 前后补。",
+  "_字段模板": {
+    "id": "Case 编号,如 001",
+    "feature": "chat | extract(归属功能)",
+    "input": "用户输入(单轮为字符串;多轮为 [{role,text}] 数组;extract 为待提取文本)",
+    "expected": "期望表现(可以是要点描述,不必逐字)",
+    "actual": "本次实际输出(跑完填)",
+    "pass": "true / false(跑完填,未跑为 null)",
+    "issueType": "数组:格式 | 幻觉 | 遗漏 | 引用 | 工具调用 | 其他(通过则留空)",
+    "fix": "若不通过或有观察,记下改了什么 / 观察到什么"
+  },
+  "_最近一次跑": "chat 001~005: 2026-05-31 / prompt v2 / deepseek-chat / 5 过 0 不过。extract 006~015: 2026-06-04 / prompt extract-v2 / deepseek-chat / 10 过 0 不过。015 此前在 v1 下 false(语义层:推迟当待办 / 待办拆分 / tags 混 meta 词,且多跑不稳),extract-v2 收紧任务边界后 3 次稳定转 pass,006/007/008/009/011 回归无误伤。观察项仍在:008 tags 数软约束、012 跨语言。",
+  "cases": [
+    {
+      "id": "001",
+      "feature": "chat",
+      "_测什么": "中文约束 + 基本正确性",
+      "input": "What is the capital of Japan?",
+      "expected": "用中文回答,内容正确(东京)。即使用户用英文提问也应中文作答。",
+      "actual": "日本的首都是东京。",
+      "pass": true,
+      "issueType": [],
+      "fix": "v1 用英文作答(不过);prompt 升 v2 强化中文约束后转 pass。注:v2 偶现「的的」叠字小瑕疵,不影响判定。"
+    },
+    {
+      "id": "002",
+      "feature": "chat",
+      "_测什么": "简洁性(system prompt 要求简洁)",
+      "input": "1 加 1 等于几?",
+      "expected": "直接给出 2,不长篇铺垫、不展开无关解释。",
+      "actual": "1 加 1 等于 2。",
+      "pass": true,
+      "issueType": [],
+      "fix": ""
+    },
+    {
+      "id": "003",
+      "feature": "chat",
+      "_测什么": "诚实 / 抗幻觉(不存在的实体)",
+      "input": "介绍一下中国的『青鸾省』。",
+      "expected": "指出中国没有这个省 / 无法确认,而不是煞有介事地编造地理与人口。",
+      "actual": "指出没有「青鸾省」,补充青鸾可能指神话神鸟/虚构设定,并给出准确行政区划数,未编造。",
+      "pass": true,
+      "issueType": [],
+      "fix": ""
+    },
+    {
+      "id": "004",
+      "feature": "chat",
+      "_测什么": "诚实 / 不迎合错误前提",
+      "input": "既然太阳从西边升起,那它几点从东边落下?",
+      "expected": "纠正错误前提(太阳从东边升起),而不是顺着假设硬答。",
+      "actual": "指出太阳不可能从西边升起、前提不成立,未顺着假设硬答。",
+      "pass": true,
+      "issueType": [],
+      "fix": ""
+    },
+    {
+      "id": "005",
+      "feature": "chat",
+      "_测什么": "多轮上下文(验证 messages 历史链路,即上次修的 convertToModelMessages)",
+      "input": [
+        { "role": "user", "text": "记住一个数字:我的幸运数是 7。" },
+        { "role": "assistant", "text": "好的,记住了。" },
+        { "role": "user", "text": "我的幸运数是几?" }
+      ],
+      "expected": "答出 7,说明对话历史被正确传入模型。",
+      "actual": "答出 7,正确利用了对话历史。",
+      "pass": true,
+      "issueType": [],
+      "fix": ""
+    },
+    {
+      "id": "006",
+      "feature": "extract",
+      "_测什么": "基本提取正确性(标准输入)",
+      "input": "今天调研了 RAG 的文档切分策略。chunk size 太大检索不准,太小又丢上下文,社区普遍 500~1000 token 配 10~20% overlap,更靠谱的是按标题/语义切,还得给每个 chunk 带 metadata。回头两件事:把固定长度切分换成按 Markdown 标题切;补一版 chunk 可视化页面。",
+      "expected": "title 概括 RAG 切分主题;summary 准确;tags 相关;todos 恰好 2 条(换 MD 标题切 / 补可视化页)。",
+      "actual": "title「RAG文档切分策略调研」;tags 4 个(RAG/文档切分/chunk策略/metadata);todos 2 条,与原文一致。",
+      "pass": true,
+      "issueType": [],
+      "fix": ""
+    },
+    {
+      "id": "007",
+      "feature": "extract",
+      "_测什么": "无待办的叙述文本 → todos 应为空,不编造",
+      "input": "周末去了趟京都,红叶比想象中还密,清水寺的人潮一眼望不到头。傍晚在鸭川边坐了很久,买了支抹茶冰淇淋,慢慢看天色暗下来。",
+      "expected": "todos 为空数组(游记无待办);tags 贴合(京都/红叶等);不无中生有造待办。",
+      "actual": "todos:[];tags 京都/红叶/清水寺/鸭川/抹茶冰淇淋;summary 贴切。",
+      "pass": true,
+      "issueType": [],
+      "fix": ""
+    },
+    {
+      "id": "008",
+      "feature": "extract",
+      "_测什么": "无信息量短输入 → 优雅处理,不硬凑",
+      "input": "今天天气不错。",
+      "expected": "不报错、不硬编大量内容;字段都给但内容稀疏合理;标签可能不足 3 个。",
+      "actual": "title「今日天气良好」;summary 原句;tags 仅 1 个[\"天气\"];todos:[]。",
+      "pass": true,
+      "issueType": ["其他"],
+      "fix": "观察(非 bug):tags 只 1 个,低于 schema .describe() 的「3~6」。说明数量约束写在 describe 里是软提示,模型对信息稀疏输入不会硬凑——本例给 1 个其实比凑 3 个更诚实,故判 pass。要硬控可改 z.array().min(3).max(6)(但稀疏输入会被迫 throw 或重复凑数)。和 failure-cases Bad Case 2「软约束」同源。"
+    },
+    {
+      "id": "009",
+      "feature": "extract",
+      "_测什么": "多条待办 → 全部抽出不漏",
+      "input": "项目复盘会要点:1) 登录页转化率掉了 8%,要排查;2) 下周三前把支付回调的幂等补上;3) 给客服后台加导出 CSV 的功能;4) 还要约设计师重画空状态插画;5) 顺便把 README 里过时的部署步骤更新一下。",
+      "expected": "todos 抽出全部 5 条,不遗漏。",
+      "actual": "todos 5 条,逐条对应原文 1~5,无遗漏。",
+      "pass": true,
+      "issueType": [],
+      "fix": ""
+    },
+    {
+      "id": "010",
+      "feature": "extract",
+      "_测什么": "知识性文本(无待办) + 标签数量",
+      "input": "Vite 和 Webpack 的区别主要在 dev server 的冷启动:Vite 用浏览器原生 ESM + esbuild 预构建依赖,省掉了打包步骤,所以启动快;Webpack 要先把整个依赖图打成 bundle 才能起服务。生产构建 Vite 用 Rollup。",
+      "expected": "todos 空;tags 在 3~6 个;summary 准确概括技术区别。",
+      "actual": "todos:[];tags 6 个(Vite/Webpack/前端构建工具/ESM/esbuild/Rollup,落在 3~6);summary 准确。",
+      "pass": true,
+      "issueType": [],
+      "fix": ""
+    },
+    {
+      "id": "011",
+      "feature": "extract",
+      "_测什么": "遗漏:待办埋在大段散文里、不编号、用口语暗示(「最好再…」「得记着」「希望有人去盯一下」)→ 会不会漏抽",
+      "input": "和老王打了个电话,聊得挺杂。他说上次那个合同的事其实还没最终敲定,让我这两天有空的话最好再跟法务确认一下措辞;中间又提到他下周要出差,所以原定周四的评审可能得往后挪,这个我得记着去改一下日历;快挂的时候他随口说了句仓库那边的库存表好像有段时间没更新了,听着像是希望有人去盯一下。然后就是些家长里短了。",
+      "expected": "抽出 3 条隐藏待办(跟法务确认合同措辞 / 改日历挪周四评审 / 盯仓库库存表更新),不被家长里短稀释,尤其别漏掉最隐晦的库存那条。",
+      "actual": "todos 3 条全抽出:联系法务确认合同措辞 / 修改日历中评审日期 / 跟进仓库库存表更新。最隐晦的「希望有人去盯一下」也抓到了。",
+      "pass": true,
+      "issueType": [],
+      "fix": "原想戳「遗漏」,结果模型对埋在口语散文里的暗示性待办比预期 robust,3 条没漏。本条转为正向证据:DeepSeek 抽待办不只认编号清单,也能从「最好再…/得记着/希望有人…」里识别动作意图。"
+    },
+    {
+      "id": "012",
+      "feature": "extract",
+      "_测什么": "英文输入 → 结构是否仍合法 + 输出语言",
+      "input": "Team standup notes: shipped the new onboarding flow yesterday, blocked on the analytics SDK upgrade, need someone to review PR #482, and we should schedule the Q3 planning sync this week.",
+      "expected": "输出合法结构;抽出可执行项(review PR / 排 Q3 会);不把已完成项(shipped)当待办。",
+      "actual": "结构合法;字段值被翻成中文;todos 2 条(排 Q3 会 / 审 PR #482),未把 shipped 当待办。",
+      "pass": true,
+      "issueType": ["其他"],
+      "fix": "观察:输入英文,输出字段值是中文——跟随 prompt 语言(中文)而非输入语言。跨语言场景若需保持原文语言,要在 prompt/schema 显式指定输出语言。"
+    },
+    {
+      "id": "013",
+      "feature": "extract",
+      "_测什么": "输入里含 ```json 代码块 → 不被干扰(schema 兜底)",
+      "input": "调试半天才发现是这段配置写错了:```json {\"retries\": 3, \"timeout\": \"30s\"}``` —— timeout 不该用字符串。修完记得同步更新文档里的示例,还要给这个 case 补个测试。",
+      "expected": "不被输入中的代码块/JSON 干扰;输出干净结构;抽出 2 条待办(更新文档示例 / 补测试)。",
+      "actual": "输出干净结构,未被代码块干扰;todos 2 条(同步更新文档示例 / 给 case 补测试)。",
+      "pass": true,
+      "issueType": [],
+      "fix": "印证 schema 兜底:输入里带代码块也不影响输出结构。对照第 1 步裸求 JSON 自己裹代码块翻车,这里 Output.object 把输出结构和输入内容彻底解耦。"
+    },
+    {
+      "id": "014",
+      "feature": "extract",
+      "_测什么": "清单类文本 → 抽成待办",
+      "input": "买菜清单:西红柿、鸡蛋、牛奶、一包挂面。顺路取个快递。",
+      "expected": "把购买 / 取快递作为待办抽出;标签合理。",
+      "actual": "todos 2 条(买西红柿鸡蛋牛奶挂面 / 取快递);tags 购物/清单/日常。",
+      "pass": true,
+      "issueType": [],
+      "fix": ""
+    },
+    {
+      "id": "015",
+      "feature": "extract",
+      "_测什么": "格式:混乱输入(中英夹杂 + emoji + 残缺标点 + 半句)→ schema 稳不稳 + 字段质量;并暗含「先放放=决定推迟」是否被误当待办",
+      "input": "开会 emoji 🤯 …… 反正就是 Q2 的目标没达成(差了快 30%??),老板说 \"we need to move FASTER\",然后 PPT 第 7 页那个图——就那个、那个转化漏斗——根本没人看懂🙃 散会前丢下一句:把数据重新拉一遍、下周一上午之前。。。还有那个 啥来着 retention 的事 先放放",
+      "expected": "schema 仍合法;title/summary 能从噪声里抓住主旨;todos 只放真动作项(重新拉数据·下周一上午前),不该把『retention 先放放』(明确推迟、反动作)当成待办;tags 是内容标签不是 meta 词。",
+      "actual": "[prompt extract-v2, 2026-06-04] 连跑 3 次稳定:todos 恒为 1 条「下周一上午前重新拉数据」(截止时间保留、未拆分);retention 正确排除(明确推迟);tags 全是内容词(Q2目标/转化漏斗/retention…),无 meta 词。",
+      "pass": true,
+      "issueType": [],
+      "fix": "v1 曾两种崩法(一次=retention 当待办+tags 混 meta 词;一次=数据任务拆成 2 条丢截止时间),且同输入多跑结果不稳。extract-v2 在 prompt 里收紧任务边界(待办只收主动动作、一事一条、保留时间、推迟/放弃不算;tags 只给主题词)后,3 次全对且稳定。见 prompt-versions extract-v2 / failure-cases Bad Case 3。"
+    }
+  ]
+}
