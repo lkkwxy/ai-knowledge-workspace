@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { ExtractResult } from "@/lib/extract";
 
 type Status = "idle" | "loading" | "done" | "error";
@@ -37,6 +38,14 @@ export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-12">
       <header>
+        <nav className="mb-4 flex gap-4 text-sm text-gray-500">
+          <Link href="/workbench" className="hover:text-gray-900">
+            内容工作台 →
+          </Link>
+          <Link href="/ai-learning" className="hover:text-gray-900">
+            里程碑
+          </Link>
+        </nav>
         <h1 className="text-2xl font-semibold">结构化提取</h1>
         <p className="mt-1 text-sm text-gray-500">
           粘贴一段文本，提取成 标题 / 摘要 / 标签 / 待办 的卡片。

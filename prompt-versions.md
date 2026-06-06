@@ -5,6 +5,18 @@
 
 ---
 
+## workbench-v1 — 内容工作台 4 个输出模板(初版)
+
+- **日期**:2026-06-06
+- **所在文件**:`lib/prompts.ts`(`summarize` 复用 + 新增 `takeaways` / `wechatOutline` / `juejinOutline`),由 `lib/workbench.ts` 调用
+- **内容**:见 `lib/prompts.ts`。设计要点:
+  - 四个都输出**自由 markdown 文本**(不上 schema),所以无有界重试——重试是为软约束 schema 兜底,自由文本不需要。
+  - `takeaways`:只提炼文本实际表达/可直接推出的观点,**不许替作者发挥**(防编造,同 extract 的「原文没提到不要编」)。
+  - `wechatOutline` / `juejinOutline`:同源不同受众——公众号面向大众(钩子+小标题),掘金面向开发者(深度+可标代码/数据点)。
+  - 都要求「只输出结果、不要前言」,与 extract/summarize 一致。
+- **改动原因**:W3「内容工作台」首版,把 W2 学的「集中 prompt 目录 + 任务边界清晰」用到多输出工作流。顺带**接入了 W2 一直挂着没接的 `summarize`**。
+- **改后 eval 结果**:暂无形式化 eval(`eval-cases.json` 目前只覆盖 extract;内容生成类输出靠人工看)。回归:仅向 `prompts` 加键、未改 `extract` 链路,extract 整组应保持 10/10(实现后手动复跑 2~3 条确认)。
+
 ## extract-v2 — 收紧待办/标签的任务边界
 
 - **日期**:2026-06-04

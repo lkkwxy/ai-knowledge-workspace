@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "从 0 学 AI 应用开发 · 6 个月里程碑",
@@ -84,6 +85,14 @@ export default function AiLearningPage() {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-8 px-6 py-12">
       <header>
+        <nav className="mb-4 flex gap-4 text-sm text-gray-500">
+          <Link href="/" className="hover:text-gray-900">
+            结构化提取
+          </Link>
+          <Link href="/workbench" className="hover:text-gray-900">
+            内容工作台
+          </Link>
+        </nav>
         <h1 className="text-2xl font-semibold">从 0 学 AI 应用开发</h1>
         <p className="mt-2 text-sm text-gray-500">
           一个开发者公开记录自己 6 个月系统掌握 AI 应用开发的全过程——真实、有数据、敢写失败。

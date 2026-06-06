@@ -8,9 +8,11 @@
 //   - 错误兜底：可靠性靠 schema 校验 + 调用方有界重试（见 lib/extract.ts），不靠 prompt 求情。
 //
 // 接入状态：
-//   - extract（信息提取）= 已接入 app（lib/extract.ts → /api/extract → 卡片）。
-//   - summarize / todos = 目录模板，当前由 extract 的 summary / todos 字段覆盖；
-//     等它们有了独立 UI/接口再单独接入，不预先搭空壳功能（简洁优先）。
+//   - extract（信息提取）= 已接入（lib/extract.ts → /api/extract → 卡片）。
+//   - summarize / takeaways / wechatOutline / juejinOutline = 内容工作台 4 个输出，
+//     已接入（lib/workbench.ts → /api/workbench → /workbench）。这些是自由 markdown
+//     文本、不上 schema，所以没有 extract 那套有界重试（重试是为软约束 schema 兜底）。
+//   - todos = 目录模板，当前由 extract 的 todos 字段覆盖；有独立 UI/接口再接入。
 
 export const prompts = {
   /** 信息提取：一段文本 → 结构化对象（配 lib/extract.ts 的 ExtractSchema）。规则见 extract-v2（prompt-versions.md）。 */
@@ -30,4 +32,23 @@ ${text}`,
   /** 待办：一段文本 → 待办清单。原文没提到的不许编。 */
   todos: (text: string) =>
     `从下面这段文本里抽出所有「要做的事 / 待办」，每条一行、动词开头。原文没明确提到的不要编；没有任何待办就输出「（无）」。\n\n文本：\n${text}`,
+
+  /** 观点：一段文本 → 核心观点 / 关键判断的 markdown 列表。不替作者发挥。 */
+  takeaways: (text: string) =>
+    `从下面这段文本里提炼核心观点 / 关键判断，输出 markdown 无序列表（每条以 "- " 开头），每条一句、点到为止。只提炼文本里实际表达或可直接推出的观点，不要替作者发挥、不要编。只输出列表本身，不要标题、不要前言。\n\n文本：\n${text}`,
+
+  /** 公众号大纲：一段文本 → 面向大众读者的公众号文章大纲（markdown）。 */
+  wechatOutline: (text: string) =>
+    `基于下面这段文本，写一篇公众号文章的大纲，markdown 格式。读者是对该主题感兴趣的大众，不必有技术背景。要求：
+- 一个抓人的标题（以 "## " 开头）
+- 紧接一句话开篇钩子
+- 3~5 个小节，每节一个 "### " 小标题 + 一句话说明这节讲什么
+只输出大纲本身，不要前言、不要解释。\n\n文本：\n${text}`,
+
+  /** 掘金大纲：一段文本 → 面向开发者的掘金技术文章大纲（markdown）。 */
+  juejinOutline: (text: string) =>
+    `基于下面这段文本，写一篇掘金技术文章的大纲，markdown 格式。读者是开发者，偏好深度、原理和可落地的细节。要求：
+- 一个技术向标题（以 "## " 开头）
+- 3~6 个小节，每节一个 "### " 小标题 + 一句话要点；适合放代码 / 示意图 / 数据的小节可在要点里注明
+只输出大纲本身，不要前言。\n\n文本：\n${text}`,
 } as const;
