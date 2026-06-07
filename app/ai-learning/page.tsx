@@ -25,7 +25,7 @@ const MILESTONES: Milestone[] = [
     title: "内容工作流 v1",
     summary:
       "AI 应用基础 + 结构化输出：流式 Chat、Zod 校验、内容工作台雏形。证明「AI 应用不是聊天框，是工作流」。",
-    status: "active",
+    status: "done",
   },
   {
     id: "M2",
@@ -33,7 +33,7 @@ const MILESTONES: Milestone[] = [
     title: "本地 RAG 原型",
     summary:
       "手搓 embedding → 检索 → 注入 prompt；文档解析与 chunking 实验；Supabase + pgvector 入库。",
-    status: "upcoming",
+    status: "active",
   },
   {
     id: "M3",
