@@ -10,7 +10,7 @@
     "issueType": "数组:格式 | 幻觉 | 遗漏 | 引用 | 工具调用 | 其他(通过则留空)",
     "fix": "若不通过或有观察,记下改了什么 / 观察到什么"
   },
-  "_最近一次跑": "chat 001~005: 2026-05-31 / prompt v2 / deepseek-chat / 5 过 0 不过。extract 006~015: 2026-06-04 / prompt extract-v2 / deepseek-chat / 10 过 0 不过。015 此前在 v1 下 false(语义层:推迟当待办 / 待办拆分 / tags 混 meta 词,且多跑不稳),extract-v2 收紧任务边界后 3 次稳定转 pass,006/007/008/009/011 回归无误伤。观察项仍在:008 tags 数软约束、012 跨语言。",
+  "_最近一次跑": "extract 006~015: 2026-06-07 / W4 缓冲周回归 / extract-v2 / deepseek-chat / 10 过 0 不过——W3 往 lib/prompts.ts 加 workbench 三个键、没碰 extract,实测无误伤(015 retention 仍正确排除、009 五条不漏、007/008/010 该空仍空)。上一次:extract 006~015 2026-06-04 / extract-v2 / 10 过 0 不过(015 由 v1 的语义层 false 经 extract-v2 收紧转 pass)。chat 001~005: 2026-05-31 / v2 / 5 过 0 不过。观察项仍在:008 tags 数软约束、012 跨语言输出语言跟 prompt。",
   "cases": [
     {
       "id": "001",

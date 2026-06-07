@@ -19,6 +19,7 @@
 | 2026-06-06 | W3 工作台实测(`/api/workbench`) | deepseek-chat | 6333 | 1385 | ~0 | 用户实测,长输入,4 路并行 ok=4/4 |
 | 2026-06-06 | W3 工作台实测(`/api/workbench`) | deepseek-chat | 385 | 1269 | ~0 | 用户实测,**短输入**,4 路并行 ok=4/4。output(1269)>input(385):短文本被 4 份大纲展开,这种 input 小 output 大 |
 | 2026-06-06 | W3 工作台实测(`/api/workbench`) | deepseek-chat | 881 | 1126 | ~0 | 用户实测,4 路并行 ok=4/4 |
+| 2026-06-07 | W4 workbench 对抗性压测(14 用例 + 复测) | deepseek-chat | 15057 | 7743 | ~0 | 21 次 workbench 调用合计;bad case 狩猎 + v2/v3 修复验证。单次成本可忽略,但「全量回归压测」一次烧 ~2.3 万 token——eval 自动化后要留意压测频率 |
 
 > 成本估算口径:DeepSeek 官网价会变,**请以 platform.deepseek.com 现价为准**。本批总量仅 846 tokens,成本几乎可忽略(¥0.00x 级)。
 > 算法:非缓存输入 446 + 缓存输入 256 + 输出 144,分别乘对应单价即可。

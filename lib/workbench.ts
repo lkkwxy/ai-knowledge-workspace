@@ -9,7 +9,8 @@ import { deepseek } from "@ai-sdk/deepseek";
 import { generateText } from "ai";
 import { prompts } from "./prompts";
 
-// 数据驱动的输出配置：要加一种成品（如「小红书文案」），在这里加一项即可。
+// 数据驱动的输出配置：要加一种成品（如「小红书文案」），在这里加一项即可——
+// UI 不用动：app/workbench/page.tsx 按返回的 sections 数组渲染，自动多出一块。
 const SECTIONS = [
   { key: "summary", label: "摘要", prompt: prompts.summarize },
   { key: "takeaways", label: "观点", prompt: prompts.takeaways },
