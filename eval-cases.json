@@ -1,5 +1,6 @@
 {
   "_说明": "四件套之一(roadmap 第十节)。改完 prompt / 换模型后,把 cases 全部重跑一遍看回归。001~005=W1 chat 功能(手动发到 chat 人眼对照);006~015=W2 extract 结构化提取(POST /api/extract 实跑,actual 为返回对象摘要)。npm run eval 统一脚本待 W5 前后补。",
+  "_RAG检索eval": "W7 起 RAG 检索 eval 单独住在 scripts/eval.mts(20 题,判定按内容含 expectText、不按 section 标签;含 1 条语料外拒答用例)。跑法 pnpm db:eval(需先 pnpm db:ingest)。判定形态与 chat/extract 不同(top-1/top-3 命中 + 拒答阈值),故不塞进下面 cases 数组。最近一次:2026-06-13 / sample.md 7 块 heading / top-1 16/20、top-3 20/20、拒答触发(明朝 0.236<0.35)。4 个 top-1 偏移全是检索质量问题(W10 靶子),非切法/存储。",
   "_字段模板": {
     "id": "Case 编号,如 001",
     "feature": "chat | extract(归属功能)",
