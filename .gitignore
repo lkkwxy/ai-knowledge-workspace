@@ -41,3 +41,6 @@ yarn-error.log*
 
 # === TypeScript ===
 *.tsbuildinfo
+
+# 本地 embedding 模型缓存（~90MB，复用自 week-06，不提交）
+.models/

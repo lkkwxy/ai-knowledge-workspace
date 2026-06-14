@@ -6,12 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
+    "db:ingest": "NODE_USE_ENV_PROXY=1 node --env-file=.env.local --import tsx scripts/ingest.mts",
+    "db:retrieve": "NODE_USE_ENV_PROXY=1 node --env-file=.env.local --import tsx scripts/retrieve-check.mts",
+    "db:eval": "NODE_USE_ENV_PROXY=1 node --env-file=.env.local --import tsx scripts/eval.mts"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "^2.0.35",
+    "@huggingface/transformers": "^4.2.0",
     "ai": "^6.0.193",
     "next": "16.2.6",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "zod": "^3.25.76"
@@ -24,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   }
 }
